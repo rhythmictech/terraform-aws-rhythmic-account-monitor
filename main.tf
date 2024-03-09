@@ -1,10 +1,3 @@
-data "aws_caller_identity" "current" {
-}
-
-data "aws_region" "current" {
-}
-
-
 module "tags" {
   source  = "rhythmictech/tags/terraform"
   version = "~> 1.1.1"
@@ -18,9 +11,7 @@ module "tags" {
 }
 
 locals {
-  account_id = data.aws_caller_identity.current.account_id
-  region     = data.aws_region.current.name
-  tags       = module.tags.tags_no_name
+  tags = module.tags.tags_no_name
 }
 
 resource "aws_sns_topic" "account_alerts" {
