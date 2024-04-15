@@ -26,6 +26,8 @@ resource "aws_cloudwatch_event_target" "backup" {
   target_id = "SendToSNS"
 }
 
+# TODO only include negative backup events for now until the datadog terraform
+# provider adds support for event pipelines
 resource "aws_cloudwatch_event_rule" "backup_event" {
 
   name_prefix = "backup-events-monitor"
@@ -36,7 +38,7 @@ resource "aws_cloudwatch_event_rule" "backup_event" {
   "source": ["aws.backup"],
   "detail-type": ["Backup Job State Change"],
   "detail": {
-    "state": ["COMPLETED", "FAILED", "ABORTED"]
+    "state": ["EXPIRED", "FAILED", "ABORTED"]
   }
 }
 EOT
