@@ -29,7 +29,7 @@ data "aws_kms_alias" "notifications" {
 }
 
 resource "aws_sns_topic" "account_alerts" {
-  name              = "Rhythmic-AccountAlerts"
+  name              = "${var.name_prefix}AccountAlerts"
   kms_master_key_id = "alias/rhythmic-notifications"
   tags              = local.tags
 }

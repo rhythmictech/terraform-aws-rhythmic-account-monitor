@@ -1,5 +1,5 @@
 resource "aws_cloudwatch_event_rule" "glacier_vaultlock" {
-  name        = "glacier-vaultlock-monitor"
+  name        = "${var.name_prefix}glacier-vaultlock-monitor"
   description = "Capture glacier vault lock rules"
 
   event_pattern = jsonencode({
@@ -25,7 +25,7 @@ resource "aws_cloudwatch_event_target" "glacier_vaultlock" {
 }
 
 resource "aws_cloudwatch_event_rule" "backup_vaultlock" {
-  name = "backup-vaultlock-monitor"
+  name = "${var.name_prefix}backup-vaultlock-monitor"
 
   event_pattern = jsonencode({
     source      = ["aws.backup"]

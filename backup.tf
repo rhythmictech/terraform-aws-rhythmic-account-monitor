@@ -1,6 +1,6 @@
 resource "aws_cloudwatch_event_rule" "backup" {
 
-  name        = "backup-events-monitor"
+  name        = "${var.name_prefix}backup-events-monitor"
   description = "Capture AWS Backup events"
 
   event_pattern = jsonencode({

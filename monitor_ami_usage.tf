@@ -87,7 +87,7 @@ data "archive_file" "monitor_ami_usage" {
 
 #tfsec:ignore:avd-aws-0066
 resource "aws_lambda_function" "monitor_ami_usage" {
-  function_name    = "monitor_ami_usage_execution"
+  function_name    = "rhythmic-monitor_ami_usage_execution"
   handler          = "monitor_ami_usage.lambda_handler"
   role             = aws_iam_role.monitor_ami_usage_execution.arn
   runtime          = "python3.9"
@@ -110,7 +110,7 @@ resource "aws_cloudwatch_log_group" "monitor_ami_usage" {
 }
 
 resource "aws_cloudwatch_event_rule" "monitor_ami_usage" {
-  name                = "monitor-ami-usage-trigger"
+  name                = "rhythmic-monitor-ami-usage-trigger"
   description         = "Triggers Lambda at noon ET every day"
   schedule_expression = "cron(0 17 * * ? *)"
 }

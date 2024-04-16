@@ -20,3 +20,9 @@ variable "iam_analyzer_unused_access_age" {
   description = "The age in days after which IAM access is considered unused."
   type        = number
 }
+
+variable "name_prefix" {
+  default     = "rhythmic-"
+  description = "Prefix for all resource names"
+  type        = string
+}

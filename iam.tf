@@ -1,7 +1,7 @@
 resource "aws_accessanalyzer_analyzer" "analyzer" {
   count = var.enable_iam_access_analyzer ? 1 : 0
 
-  analyzer_name = "default-access-analyzer"
+  analyzer_name = "${var.name_prefix}default-access-analyzer"
   type          = "ACCOUNT"
   tags          = local.tags
 }
@@ -9,7 +9,7 @@ resource "aws_accessanalyzer_analyzer" "analyzer" {
 resource "aws_accessanalyzer_analyzer" "analyzer_unused" {
   count = var.enable_iam_access_analyzer ? 1 : 0
 
-  analyzer_name = "default-unused-access-analyzer"
+  analyzer_name = "${var.name_prefix}default-unused-access-analyzer"
   type          = "ACCOUNT_UNUSED_ACCESS"
   tags          = local.tags
 
