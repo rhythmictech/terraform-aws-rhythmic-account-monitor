@@ -25,6 +25,7 @@ data "aws_iam_policy_document" "monitor_ami_usage_execution" {
       "batch:DescribeComputeEnvironments",
       "cloudformation:DescribeStacks",
       "cloudformation:DescribeStackResources",
+      "cloudformation:ListStacks",
       "ec2:DescribeInstances",
       "ec2:DescribeImages",
       "ec2:DescribeLaunchTemplates",
