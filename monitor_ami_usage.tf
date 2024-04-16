@@ -33,8 +33,7 @@ data "aws_iam_policy_document" "monitor_ami_usage_execution" {
       "eks:DescribeNodegroup",
       "eks:ListNodegroups",
       "elasticbeanstalk:DescribeEnvironmentResources",
-      "elasticbeanstalk:DescribeEnvironments",
-      "workspaces:DescribeWorkspaceBundles"
+      "elasticbeanstalk:DescribeEnvironments"
     ]
   }
 
@@ -84,6 +83,7 @@ resource "aws_lambda_function" "monitor_ami_usage" {
   filename         = data.archive_file.monitor_ami_usage.output_path
   source_code_hash = data.archive_file.monitor_ami_usage.output_base64sha256
   tags             = local.tags
+  timeout          = 60
 
   environment {
     variables = {

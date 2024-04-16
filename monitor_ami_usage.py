@@ -24,7 +24,9 @@ def lambda_handler(event, context):
             ami_id = instance['ImageId']
             ami_response = ec2.describe_images(ImageIds=[ami_id])
             if not ami_response['Images']:
-                unavailable_amis[ami_id] = (unavailable_amis if ami_id in unavailable_amis[ami_id] else []) + f"instance:{instance['InstanceId']}"
+                if ami_id not in unavailable_amis:
+                    unavailable_amis[ami_id] = []
+                unavailable_amis[ami_id].append(f"instance:{instance['InstanceId']}")
 
     # Check AMIs used in Auto Scaling groups
     as_groups = autoscaling.describe_auto_scaling_groups()
@@ -36,7 +38,9 @@ def lambda_handler(event, context):
                 ami_id = launch_config['LaunchConfigurations'][0]['ImageId']
                 ami_response = ec2.describe_images(ImageIds=[ami_id])
                 if not ami_response['Images']:
-                    unavailable_amis[ami_id] = (unavailable_amis if ami_id in unavailable_amis[ami_id] else []) + f"asg:{group['AutoScalingGroupName']}"
+                    if ami_id not in unavailable_amis:
+                        unavailable_amis[ami_id] = []
+                    unavailable_amis[ami_id].append(f"asg:{group['AutoScalingGroupName']}")
 
     # Check AMIs used in Elastic Beanstalk environments
     environments = beanstalk.describe_environments()
@@ -47,7 +51,9 @@ def lambda_handler(event, context):
             ami_id = instance_details['Reservations'][0]['Instances'][0]['ImageId']
             ami_response = ec2.describe_images(ImageIds=[ami_id])
             if not ami_response['Images']:
-                unavailable_amis[ami_id] = (unavailable_amis if ami_id in unavailable_amis[ami_id] else []) + f"beanstalk:{env['EnvironmentName']}"
+                if ami_id not in unavailable_amis:
+                    unavailable_amis[ami_id] = []
+                unavailable_amis[ami_id].append(f"beanstalk:{env['EnvironmentName']}")
 
     # Check AMIs used in AWS Batch compute environments
     response = batch.describe_compute_environments()
@@ -58,7 +64,9 @@ def lambda_handler(event, context):
             if ami_id:
                 ami_response = ec2.describe_images(ImageIds=[ami_id])
                 if not ami_response['Images']:
-                    unavailable_amis[ami_id] = (unavailable_amis if ami_id in unavailable_amis[ami_id] else []) + f"batch:{compute_env['computeEnvironmentName']}"
+                    if ami_id not in unavailable_amis:
+                        unavailable_amis[ami_id] = []
+                    unavailable_amis[ami_id].append(f"batch:{compute_env['computeEnvironmentName']}")
 
     # Get all EKS clusters
     clusters_response = eks.list_clusters()
@@ -75,15 +83,9 @@ def lambda_handler(event, context):
             ami_id = node_group['launchTemplate']['id']
             ami_response = ec2.describe_images(ImageIds=[ami_id])
             if not ami_response['Images']:
-                unavailable_amis[ami_id] = (unavailable_amis if ami_id in unavailable_amis[ami_id] else []) + f"eks_node_group:{cluster_name}/{node_group_name}"
-
-    response = workspaces.describe_workspace_bundles()
-    for bundle in response['Bundles']:
-        if bundle.get('Owner') != 'AMAZON':
-            ami_id = bundle['ImageId']
-            ami_response = ec2.describe_images(ImageIds=[ami_id])
-            if not ami_response['Images']:
-                unavailable_amis[ami_id] = (unavailable_amis if ami_id in unavailable_amis[ami_id] else []) + f"workspaces_bundle:{bundle['BundleId']}"
+                if ami_id not in unavailable_amis:
+                    unavailable_amis[ami_id] = []
+                unavailable_amis[ami_id].append(f"eks_node_group:{cluster_name}/{node_group_name}")
 
     ami_regex = re.compile(r"ami-[a-f0-9]{8,17}")
 
@@ -98,7 +100,9 @@ def lambda_handler(event, context):
                 ami_id = param['ParameterValue']
                 ami_response = ec2.describe_images(ImageIds=[ami_id])
             if not ami_response['Images']:
-                unavailable_amis[ami_id] = (unavailable_amis if ami_id in unavailable_amis[ami_id] else []) + f"cloudformation_stack:{stack['StackName']}"
+                if ami_id not in unavailable_amis:
+                    unavailable_amis[ami_id] = []
+                unavailable_amis[ami_id].append(f"cloudformation_stack:{stack['StackName']}")
 
     if unavailable_amis:
 

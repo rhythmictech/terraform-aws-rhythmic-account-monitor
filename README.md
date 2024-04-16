@@ -28,6 +28,7 @@ We open source the vast majority of the resources we use to deliver our managed 
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5 |
+| <a name="requirement_archive"></a> [archive](#requirement\_archive) | >= 2.2.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.62 |
 
 ## Providers
