@@ -57,6 +57,16 @@ data "aws_iam_policy_document" "monitor_ami_usage_execution" {
       "sns:Publish"
     ]
   }
+
+    statement {
+    effect    = "Allow"
+    resources = [aws_sns_topic.account_alerts.kms_master_key_id]
+
+    actions = [
+      "kms:Decrypt",
+      "kms:GenerateDataKey"
+    ]
+  }
 }
 
 resource "aws_iam_policy" "monitor_ami_usage_execution" {
