@@ -24,6 +24,10 @@ locals {
   tags       = module.tags.tags_no_name
 }
 
+data "aws_kms_alias" "notifications" {
+  name = "alias/rhythmic-notifications"
+}
+
 resource "aws_sns_topic" "account_alerts" {
   name              = "Rhythmic-AccountAlerts"
   kms_master_key_id = "alias/rhythmic-notifications"

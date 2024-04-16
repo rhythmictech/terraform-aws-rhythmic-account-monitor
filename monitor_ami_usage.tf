@@ -58,9 +58,9 @@ data "aws_iam_policy_document" "monitor_ami_usage_execution" {
     ]
   }
 
-    statement {
+  statement {
     effect    = "Allow"
-    resources = [aws_sns_topic.account_alerts.kms_master_key_id]
+    resources = [data.aws_kms_alias.notifications.target_key_arn]
 
     actions = [
       "kms:Decrypt",
