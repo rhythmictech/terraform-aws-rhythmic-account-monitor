@@ -33,6 +33,18 @@ variable "name_prefix" {
   type        = string
 }
 
+variable "notify_ec2_missing_ami" {
+  description = "Whether to notify when EC2 instances are using missing AMIs"
+  type        = bool
+  default     = false
+}
+
+variable "notify_ec2_missing_ami_if_snapshot_exists" {
+  description = "Whether to notify when EC2 instances are using missing AMIs but snapshots exist"
+  type        = bool
+  default     = true
+}
+
 variable "tags" {
   default     = {}
   description = "User-Defined tags"

@@ -92,6 +92,8 @@ We open source the vast majority of the resources we use to deliver our managed 
 | <a name="input_iam_access_analyzer_archive_rules"></a> [iam\_access\_analyzer\_archive\_rules](#input\_iam\_access\_analyzer\_archive\_rules) | List of IAM resources to auto-archive findings for | <pre>list(object({<br>    finding_type  = string<br>    is_partial    = bool<br>    resource      = string<br>    resource_type = string<br>  }))</pre> | `[]` | no |
 | <a name="input_iam_analyzer_unused_access_age"></a> [iam\_analyzer\_unused\_access\_age](#input\_iam\_analyzer\_unused\_access\_age) | The age in days after which IAM access is considered unused. | `number` | `90` | no |
 | <a name="input_name_prefix"></a> [name\_prefix](#input\_name\_prefix) | Prefix for all resource names | `string` | `"rhythmic-"` | no |
+| <a name="input_notify_ec2_missing_ami"></a> [notify\_ec2\_missing\_ami](#input\_notify\_ec2\_missing\_ami) | Whether to notify when EC2 instances are using missing AMIs | `bool` | `false` | no |
+| <a name="input_notify_ec2_missing_ami_if_snapshot_exists"></a> [notify\_ec2\_missing\_ami\_if\_snapshot\_exists](#input\_notify\_ec2\_missing\_ami\_if\_snapshot\_exists) | Whether to notify when EC2 instances are using missing AMIs but snapshots exist | `bool` | `true` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | User-Defined tags | `map(string)` | `{}` | no |
 
 ## Outputs

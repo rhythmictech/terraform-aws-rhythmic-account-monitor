@@ -15,6 +15,9 @@ workspaces = boto3.client('workspaces')
 
 def lambda_handler(event, context):
 
+    notify_ec2_missing_ami = os.environ['NOTIFY_EC2_MISSING_AMI'].lower() == 'true'
+    notify_ec2_missing_ami_if_snapshot_exists = os.environ['NOTIFY_EC2_MISSING_AMI_IF_SNAPSHOT_EXISTS'].lower() == 'true'
+
     # Check AMIs used in EC2 instances
     unavailable_amis = {}
 
@@ -24,9 +27,20 @@ def lambda_handler(event, context):
             ami_id = instance['ImageId']
             ami_response = ec2.describe_images(ImageIds=[ami_id])
             if not ami_response['Images']:
-                if ami_id not in unavailable_amis:
-                    unavailable_amis[ami_id] = []
-                unavailable_amis[ami_id].append(f"instance:{instance['InstanceId']}")
+
+                flag_ami = False
+                if notify_ec2_missing_ami_if_snapshot_exists:
+                    snapshot_response = ec2.describe_snapshots(Filters=[{'Name': 'volume-id', 'Values': [instance['BlockDeviceMappings'][0]['Ebs']['SnapshotId']]}])
+                    if snapshot_response['Snapshots']:
+                        flag_ami = True
+
+                if notify_ec2_missing_ami:
+                    flag_ami = True
+
+                if flag_ami:
+                    if ami_id not in unavailable_amis:
+                        unavailable_amis[ami_id] = []
+                    unavailable_amis[ami_id].append(f"instance:{instance['InstanceId']}")
 
     # Check AMIs used in Auto Scaling groups
     as_groups = autoscaling.describe_auto_scaling_groups()

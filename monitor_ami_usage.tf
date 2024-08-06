@@ -98,7 +98,9 @@ resource "aws_lambda_function" "monitor_ami_usage" {
 
   environment {
     variables = {
-      SNS_TOPIC_ARN = aws_sns_topic.account_alerts.arn
+      SNS_TOPIC_ARN                             = aws_sns_topic.account_alerts.arn
+      NOTIFY_EC2_MISSING_AMI                    = var.notify_ec2_missing_ami
+      NOTIFY_EC2_MISSING_AMI_IF_SNAPSHOT_EXISTS = var.notify_ec2_missing_ami_if_snapshot_exists
     }
   }
 }
