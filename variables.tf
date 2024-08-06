@@ -9,9 +9,9 @@ variable "enable_iam_access_analyzer" {
   type        = bool
 }
 
-variable "iam_access_analyzer_archive_rules" {
+variable "iam_access_analyzer_unused_archive_rules" {
   default     = []
-  description = "List of IAM resources to auto-archive findings for"
+  description = "List of IAM resources to auto-archive unused access findings for"
   type = list(object({
     finding_type  = string
     is_partial    = bool

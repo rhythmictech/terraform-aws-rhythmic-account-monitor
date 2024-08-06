@@ -1,6 +1,14 @@
 # terraform-aws-rhythmic-account-monitor
 Configures AWS health and account related notifications
 
+This module is used to monitor AWS accounts and send notifications for various events including:
+- AWS Backup and Vault Lock lifecycle changes
+- AWS Organizations account lifecycle changes
+- AWS PHD events
+- IAM access analyzer findings
+- Resources using missing AMIs
+
+
 [![tflint](https://github.com/rhythmictech/terraform-aws-rhythmic-account-monitor/actions/workflows/tflint.yaml/badge.svg)](https://github.com/rhythmictech/terraform-aws-rhythmic-account-monitor/actions/workflows/tflint.yaml)
 [![trivy](https://github.com/rhythmictech/terraform-aws-rhythmic-account-monitor/actions/workflows/trivy.yaml/badge.svg)](https://github.com/rhythmictech/terraform-aws-rhythmic-account-monitor/actions/workflows/trivy.yaml)
 [![yamllint](https://github.com/rhythmictech/terraform-aws-rhythmic-account-monitor/actions/workflows/yamllint.yaml/badge.svg)](https://github.com/rhythmictech/terraform-aws-rhythmic-account-monitor/actions/workflows/yamllint.yaml)
@@ -48,13 +56,14 @@ We open source the vast majority of the resources we use to deliver our managed 
 
 | Name | Type |
 |------|------|
-| [aws_accessanalyzer_analyzer.analyzer](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/accessanalyzer_analyzer) | resource |
+| [aws_accessanalyzer_analyzer.unused_access_analyzer](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/accessanalyzer_analyzer) | resource |
 | [aws_accessanalyzer_archive_rule.archive_rules](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/accessanalyzer_archive_rule) | resource |
 | [aws_cloudwatch_event_rule.backup](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_rule) | resource |
 | [aws_cloudwatch_event_rule.backup_event](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_rule) | resource |
 | [aws_cloudwatch_event_rule.backup_vaultlock](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_rule) | resource |
 | [aws_cloudwatch_event_rule.control_tower](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_rule) | resource |
 | [aws_cloudwatch_event_rule.glacier_vaultlock](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_rule) | resource |
+| [aws_cloudwatch_event_rule.health](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_rule) | resource |
 | [aws_cloudwatch_event_rule.monitor_ami_usage](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_rule) | resource |
 | [aws_cloudwatch_event_rule.organizations](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_rule) | resource |
 | [aws_cloudwatch_event_target.backup](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_target) | resource |
@@ -62,6 +71,7 @@ We open source the vast majority of the resources we use to deliver our managed 
 | [aws_cloudwatch_event_target.backup_vaultlock](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_target) | resource |
 | [aws_cloudwatch_event_target.control_tower](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_target) | resource |
 | [aws_cloudwatch_event_target.glacier_vaultlock](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_target) | resource |
+| [aws_cloudwatch_event_target.health](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_target) | resource |
 | [aws_cloudwatch_event_target.monitor_ami_usage](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_target) | resource |
 | [aws_cloudwatch_event_target.organizations](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_target) | resource |
 | [aws_cloudwatch_log_group.monitor_ami_usage](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
@@ -89,7 +99,7 @@ We open source the vast majority of the resources we use to deliver our managed 
 |------|-------------|------|---------|:--------:|
 | <a name="input_datadog_api_key_secret_arn"></a> [datadog\_api\_key\_secret\_arn](#input\_datadog\_api\_key\_secret\_arn) | ARN of the AWS Secret containing the Datadog API key | `string` | n/a | yes |
 | <a name="input_enable_iam_access_analyzer"></a> [enable\_iam\_access\_analyzer](#input\_enable\_iam\_access\_analyzer) | A boolean flag to enable/disable IAM Access Analyzer | `bool` | `false` | no |
-| <a name="input_iam_access_analyzer_archive_rules"></a> [iam\_access\_analyzer\_archive\_rules](#input\_iam\_access\_analyzer\_archive\_rules) | List of IAM resources to auto-archive findings for | <pre>list(object({<br>    finding_type  = string<br>    is_partial    = bool<br>    resource      = string<br>    resource_type = string<br>  }))</pre> | `[]` | no |
+| <a name="input_iam_access_analyzer_unused_archive_rules"></a> [iam\_access\_analyzer\_unused\_archive\_rules](#input\_iam\_access\_analyzer\_unused\_archive\_rules) | List of IAM resources to auto-archive unused access findings for | <pre>list(object({<br>    finding_type  = string<br>    is_partial    = bool<br>    resource      = string<br>    resource_type = string<br>  }))</pre> | `[]` | no |
 | <a name="input_iam_analyzer_unused_access_age"></a> [iam\_analyzer\_unused\_access\_age](#input\_iam\_analyzer\_unused\_access\_age) | The age in days after which IAM access is considered unused. | `number` | `90` | no |
 | <a name="input_name_prefix"></a> [name\_prefix](#input\_name\_prefix) | Prefix for all resource names | `string` | `"rhythmic-"` | no |
 | <a name="input_notify_ec2_missing_ami"></a> [notify\_ec2\_missing\_ami](#input\_notify\_ec2\_missing\_ami) | Whether to notify when EC2 instances are using missing AMIs | `bool` | `false` | no |
