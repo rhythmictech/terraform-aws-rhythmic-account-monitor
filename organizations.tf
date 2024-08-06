@@ -34,7 +34,7 @@ resource "aws_cloudwatch_event_target" "organizations" {
 }
 
 resource "aws_cloudwatch_event_rule" "control_tower" {
-  name        = "${var.name_prefix}capture-organizations-account-changes"
+  name        = "${var.name_prefix}capture-control-tower-account-changes"
   description = "Captures Control Tower API calls related to account lifecycle and configuration"
 
   event_pattern = jsonencode({
@@ -47,6 +47,6 @@ resource "aws_cloudwatch_event_rule" "control_tower" {
 
 resource "aws_cloudwatch_event_target" "control_tower" {
   arn       = aws_sns_topic.account_alerts.arn
-  rule      = aws_cloudwatch_event_rule.organizations.name
+  rule      = aws_cloudwatch_event_rule.control_tower.name
   target_id = "SendToSNS-controltower"
 }
