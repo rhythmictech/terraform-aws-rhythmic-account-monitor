@@ -1,16 +1,8 @@
 resource "aws_accessanalyzer_analyzer" "analyzer" {
   count = var.enable_iam_access_analyzer ? 1 : 0
 
-  analyzer_name = "${var.name_prefix}default-access-analyzer"
-  type          = "ACCOUNT"
-  tags          = local.tags
-}
-
-resource "aws_accessanalyzer_analyzer" "analyzer_unused" {
-  count = var.enable_iam_access_analyzer ? 1 : 0
-
-  analyzer_name = "${var.name_prefix}default-unused-access-analyzer"
-  type          = "ACCOUNT_UNUSED_ACCESS"
+  analyzer_name = "${var.name_prefix}-unused-access-analyzer"
+  type          = "ORGANIZATION_UNUSED_ACCESS"
   tags          = local.tags
 
   configuration {
@@ -20,28 +12,25 @@ resource "aws_accessanalyzer_analyzer" "analyzer_unused" {
   }
 }
 
-resource "aws_cloudwatch_event_rule" "analyzer" {
-  count = var.enable_iam_access_analyzer ? 1 : 0
+resource "aws_accessanalyzer_archive_rule" "archive_rules" {
+  count = var.enable_iam_access_analyzer ? length(var.iam_access_analyzer_archive_rules) : 0
 
-  name_prefix = substr("iam-aa-finding-rhythmic", 0, 35)
-  description = "Match on IAM Access Analyzer finding (Rhythmic)"
+  analyzer_name = aws_accessanalyzer_analyzer.analyzer[0].analyzer_name
+  rule_name     = "archive-rule-${count.index}"
 
-  event_pattern = <<EOT
-{
-  "detail-type": [
-    "Access Analyzer Finding"
-  ],
-  "source": [
-    "aws.access-analyzer"
-  ]
-}
-EOT
-}
+  filter {
+    criteria = "resourceType"
+    eq       = [var.iam_access_analyzer_archive_rules[count.index].resource_type]
+  }
 
-resource "aws_cloudwatch_event_target" "analyzer" {
-  count = var.enable_iam_access_analyzer ? 1 : 0
+  filter {
+    criteria = "resource"
+    contains = var.iam_access_analyzer_archive_rules[count.index].is_partial ? [var.iam_access_analyzer_archive_rules[count.index].resource] : null
+    eq       = !var.iam_access_analyzer_archive_rules[count.index].is_partial ? [var.iam_access_analyzer_archive_rules[count.index].resource] : null
+  }
 
-  arn       = aws_sns_topic.account_alerts.arn
-  rule      = aws_cloudwatch_event_rule.analyzer[0].name
-  target_id = "send-to-rhythmic"
+  filter {
+    criteria = "findingType"
+    eq       = [var.iam_access_analyzer_archive_rules[count.index].finding_type]
+  }
 }
