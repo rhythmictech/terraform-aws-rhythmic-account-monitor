@@ -24,7 +24,7 @@ resource "aws_accessanalyzer_archive_rule" "archive_rules" {
   }
 
   dynamic "filter" {
-    for_each = var.iam_access_analyzer_unused_archive_rules[count.index].resource_type != null ? [1] : []
+    for_each = lookup(var.iam_access_analyzer_unused_archive_rules[count.index], "resource_type", null) != null ? ["resource_type"] : []
     content {
       criteria = "resourceType"
       eq       = [var.iam_access_analyzer_unused_archive_rules[count.index].resource_type]
@@ -32,19 +32,19 @@ resource "aws_accessanalyzer_archive_rule" "archive_rules" {
   }
 
   dynamic "filter" {
-    for_each = var.iam_access_analyzer_unused_archive_rules[count.index].resource != null ? [1] : []
+    for_each = lookup(var.iam_access_analyzer_unused_archive_rules[count.index], "resources", null) != null ? ["resources"] : []
     content {
       criteria = "resource"
-      contains = var.iam_access_analyzer_unused_archive_rules[count.index].is_partial ? [var.iam_access_analyzer_unused_archive_rules[count.index].resource] : null
-      eq       = !var.iam_access_analyzer_unused_archive_rules[count.index].is_partial ? [var.iam_access_analyzer_unused_archive_rules[count.index].resource] : null
+      contains = var.iam_access_analyzer_unused_archive_rules[count.index].is_partial ? var.iam_access_analyzer_unused_archive_rules[count.index].resources : null
+      eq       = !var.iam_access_analyzer_unused_archive_rules[count.index].is_partial ? var.iam_access_analyzer_unused_archive_rules[count.index].resources : null
     }
   }
 
   dynamic "filter" {
-    for_each = var.iam_access_analyzer_unused_archive_rules[count.index].account != null ? [1] : []
+    for_each = lookup(var.iam_access_analyzer_unused_archive_rules[count.index], "accounts", null) != null ? [1] : []
     content {
       criteria = "account"
-      eq       = [var.iam_access_analyzer_unused_archive_rules[count.index].account]
+      eq       = var.iam_access_analyzer_unused_archive_rules[count.index].accounts
     }
   }
 }

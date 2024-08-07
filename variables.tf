@@ -18,7 +18,13 @@ variable "enable_iam_access_analyzer_organization" {
 variable "iam_access_analyzer_unused_archive_rules" {
   default     = []
   description = "List of IAM resources to auto-archive unused access findings for"
-  type        = list(any)
+  type = list(object({
+    accounts      = optional(list(string))
+    finding_type  = string
+    is_partial    = bool
+    resources     = optional(list(string))
+    resource_type = optional(string)
+  }))
 }
 
 variable "iam_analyzer_unused_access_age" {
