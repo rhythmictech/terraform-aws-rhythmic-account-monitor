@@ -9,15 +9,16 @@ variable "enable_iam_access_analyzer" {
   type        = bool
 }
 
+variable "enable_iam_access_analyzer_organization" {
+  default     = false
+  description = "A boolean flag to enable/disable IAM Access Analyzer at the organization level (requires enable_iam_access_analyzer to be true and IAM Access Analyzer to be enabled at the organization level)"
+  type        = bool
+}
+
 variable "iam_access_analyzer_unused_archive_rules" {
   default     = []
   description = "List of IAM resources to auto-archive unused access findings for"
-  type = list(object({
-    finding_type  = string
-    is_partial    = bool
-    resource      = string
-    resource_type = string
-  }))
+  type        = list(any)
 }
 
 variable "iam_analyzer_unused_access_age" {
