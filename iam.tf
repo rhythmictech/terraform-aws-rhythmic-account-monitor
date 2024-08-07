@@ -43,7 +43,7 @@ resource "aws_accessanalyzer_archive_rule" "archive_rules" {
   dynamic "filter" {
     for_each = lookup(var.iam_access_analyzer_unused_archive_rules[count.index], "accounts", null) != null ? [1] : []
     content {
-      criteria = "account"
+      criteria = "resourceOwnerAccount"
       eq       = var.iam_access_analyzer_unused_archive_rules[count.index].accounts
     }
   }
