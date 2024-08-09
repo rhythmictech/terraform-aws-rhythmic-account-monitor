@@ -1,3 +1,10 @@
+data "aws_caller_identity" "current" {
+}
+
+data "aws_region" "current" {
+}
+
+
 module "tags" {
   source  = "rhythmictech/tags/terraform"
   version = "~> 1.1.1"
@@ -7,15 +14,22 @@ module "tags" {
   tags = merge(var.tags, {
     "team"    = "Rhythmic"
     "service" = "aws_managed_services"
+    "env"     = "ops"
   })
 }
 
 locals {
-  tags = module.tags.tags_no_name
+  account_id = data.aws_caller_identity.current.account_id
+  region     = data.aws_region.current.name
+  tags       = module.tags.tags_no_name
+}
+
+data "aws_kms_alias" "notifications" {
+  name = "alias/rhythmic-notifications"
 }
 
 resource "aws_sns_topic" "account_alerts" {
-  name              = "Rhythmic-AccountAlerts"
+  name              = "${var.name_prefix}AccountAlerts"
   kms_master_key_id = "alias/rhythmic-notifications"
   tags              = local.tags
 }

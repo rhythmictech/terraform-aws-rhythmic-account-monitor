@@ -16,3 +16,7 @@ tmp
 
 # modules should not submit lock files
 .terraform.lock.hcl
+
+lambda/*.zip
+
+**/__pycache__
