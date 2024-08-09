@@ -81,8 +81,8 @@ resource "aws_iam_role_policy_attachment" "monitor_ami_usage_execution" {
 
 data "archive_file" "monitor_ami_usage" {
   type        = "zip"
-  source_file = "${path.module}/monitor_ami_usage.py"
-  output_path = "${path.module}/monitor_ami_usage.zip"
+  source_file = "${path.module}/lambda/monitor_ami_usage.py"
+  output_path = "${path.module}/lambda/monitor_ami_usage.zip"
 }
 
 #tfsec:ignore:avd-aws-0066

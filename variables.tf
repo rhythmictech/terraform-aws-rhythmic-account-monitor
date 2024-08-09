@@ -52,6 +52,18 @@ variable "notify_ec2_missing_ami_if_snapshot_exists" {
   default     = true
 }
 
+variable "service_quota_threshold" {
+  default     = 80
+  description = "The threshold percentage for service quota alerts"
+  type        = number
+}
+
+variable "service_quota_region_list" {
+  description = "List of regions to monitor for service quotas. Note that you cannot monitor across partitions (e.g. us-east-1 and us-gov-east-1)"
+  type        = list(string)
+  default     = ["us-east-1"]
+}
+
 variable "tags" {
   default     = {}
   description = "User-Defined tags"

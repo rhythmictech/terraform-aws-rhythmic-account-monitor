@@ -5,9 +5,9 @@ This module is used to monitor AWS accounts and send notifications for various e
 - AWS Backup and Vault Lock lifecycle changes
 - AWS Organizations account lifecycle changes
 - AWS PHD events
-- IAM access analyzer findings
+- IAM access analyzer unused permissions/resources findings
 - Resources using missing AMIs
-
+- Service Quota limits
 
 [![tflint](https://github.com/rhythmictech/terraform-aws-rhythmic-account-monitor/actions/workflows/tflint.yaml/badge.svg)](https://github.com/rhythmictech/terraform-aws-rhythmic-account-monitor/actions/workflows/tflint.yaml)
 [![trivy](https://github.com/rhythmictech/terraform-aws-rhythmic-account-monitor/actions/workflows/trivy.yaml/badge.svg)](https://github.com/rhythmictech/terraform-aws-rhythmic-account-monitor/actions/workflows/trivy.yaml)
@@ -65,6 +65,7 @@ We open source the vast majority of the resources we use to deliver our managed 
 | [aws_cloudwatch_event_rule.glacier_vaultlock](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_rule) | resource |
 | [aws_cloudwatch_event_rule.health](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_rule) | resource |
 | [aws_cloudwatch_event_rule.monitor_ami_usage](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_rule) | resource |
+| [aws_cloudwatch_event_rule.monitor_service_quotas](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_rule) | resource |
 | [aws_cloudwatch_event_rule.organizations](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_rule) | resource |
 | [aws_cloudwatch_event_target.backup](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_target) | resource |
 | [aws_cloudwatch_event_target.backup_event](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_target) | resource |
@@ -73,21 +74,30 @@ We open source the vast majority of the resources we use to deliver our managed 
 | [aws_cloudwatch_event_target.glacier_vaultlock](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_target) | resource |
 | [aws_cloudwatch_event_target.health](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_target) | resource |
 | [aws_cloudwatch_event_target.monitor_ami_usage](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_target) | resource |
+| [aws_cloudwatch_event_target.monitor_service_quotas](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_target) | resource |
 | [aws_cloudwatch_event_target.organizations](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_target) | resource |
 | [aws_cloudwatch_log_group.monitor_ami_usage](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
+| [aws_cloudwatch_log_group.monitor_service_quotas](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
 | [aws_iam_policy.monitor_ami_usage_execution](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
+| [aws_iam_policy.monitor_service_quotas_execution](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_role.monitor_ami_usage_execution](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
+| [aws_iam_role.monitor_service_quotas_execution](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role_policy_attachment.monitor_ami_usage_execution](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_iam_role_policy_attachment.monitor_service_quotas_execution](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_lambda_function.monitor_ami_usage](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_function) | resource |
+| [aws_lambda_function.monitor_service_quotas](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_function) | resource |
 | [aws_lambda_permission.monitor_ami_usage](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) | resource |
+| [aws_lambda_permission.monitor_service_quotas](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) | resource |
 | [aws_sns_topic.account_alerts](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic) | resource |
 | [aws_sns_topic_policy.account_alerts](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic_policy) | resource |
 | [aws_sns_topic_subscription.account_alerts](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic_subscription) | resource |
 | [archive_file.monitor_ami_usage](https://registry.terraform.io/providers/hashicorp/archive/latest/docs/data-sources/file) | data source |
+| [archive_file.monitor_service_quotas](https://registry.terraform.io/providers/hashicorp/archive/latest/docs/data-sources/file) | data source |
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
 | [aws_iam_policy_document.account_alerts](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.lambda_assume](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.monitor_ami_usage_execution](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.monitor_service_quotas_execution](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_kms_alias.notifications](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/kms_alias) | data source |
 | [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
 | [aws_secretsmanager_secret.datadog_api_key](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/secretsmanager_secret) | data source |
@@ -105,6 +115,8 @@ We open source the vast majority of the resources we use to deliver our managed 
 | <a name="input_name_prefix"></a> [name\_prefix](#input\_name\_prefix) | Prefix for all resource names | `string` | `"rhythmic-"` | no |
 | <a name="input_notify_ec2_missing_ami"></a> [notify\_ec2\_missing\_ami](#input\_notify\_ec2\_missing\_ami) | Whether to notify when EC2 instances are using missing AMIs | `bool` | `false` | no |
 | <a name="input_notify_ec2_missing_ami_if_snapshot_exists"></a> [notify\_ec2\_missing\_ami\_if\_snapshot\_exists](#input\_notify\_ec2\_missing\_ami\_if\_snapshot\_exists) | Whether to notify when EC2 instances are using missing AMIs but snapshots exist | `bool` | `true` | no |
+| <a name="input_service_quota_region_list"></a> [service\_quota\_region\_list](#input\_service\_quota\_region\_list) | List of regions to monitor for service quotas. Note that you cannot monitor across partitions (e.g. us-east-1 and us-gov-east-1) | `list(string)` | <pre>[<br>  "us-east-1"<br>]</pre> | no |
+| <a name="input_service_quota_threshold"></a> [service\_quota\_threshold](#input\_service\_quota\_threshold) | The threshold percentage for service quota alerts | `number` | `80` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | User-Defined tags | `map(string)` | `{}` | no |
 
 ## Outputs
