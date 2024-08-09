@@ -1,8 +1,6 @@
 from abc import ABC, abstractmethod
 import boto3
 from datetime import datetime
-import logging
-logger = logging.getLogger(__name__)
 
 class EC2ClientSingleton:
     _instances = {}
@@ -59,12 +57,6 @@ class MulticastNetworkInterfacesChecker(EC2UsageChecker):
                              for domain in multicast_domains['TransitGatewayMulticastDomains'])
             max_interfaces = max(max_interfaces, interfaces)
         return max_interfaces
-
-class VerifiedAccessGroupsChecker(EC2UsageChecker):
-    def get_usage(self, region, quota_name):
-        ec2 = EC2ClientSingleton.get_client(region)
-        response = ec2.describe_verified_access_groups()
-        return len(response['VerifiedAccessGroups'])
 
 class RunningDedicatedHostsChecker(EC2UsageChecker):
     def get_usage(self, region, quota_name):
@@ -205,3 +197,25 @@ class RoutesPerClientVPNEndpointChecker(EC2UsageChecker):
             max_routes = max(max_routes, route_count)
 
         return max_routes
+
+class EC2VPCElasticIPsChecker(EC2UsageChecker):
+    def get_usage(self, region, quota_name):
+        ec2 = EC2ClientSingleton.get_client(region)
+        eip_count = 0
+        next_token = None
+
+        while True:
+            if next_token:
+                response = ec2.describe_addresses(NextToken=next_token)
+            else:
+                response = ec2.describe_addresses()
+
+            for address in response['Addresses']:
+                if 'Domain' in address and address['Domain'] == 'vpc':
+                    eip_count += 1
+
+            next_token = response.get('NextToken')
+            if not next_token:
+                break
+
+        return eip_count

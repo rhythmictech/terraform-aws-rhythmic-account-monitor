@@ -65,6 +65,11 @@ resource "aws_iam_role_policy_attachment" "monitor_service_quotas_execution" {
   policy_arn = aws_iam_policy.monitor_service_quotas_execution.arn
 }
 
+resource "aws_iam_role_policy_attachment" "monitor_service_quotas_security_analyst" {
+  role       = aws_iam_role.monitor_service_quotas_execution.name
+  policy_arn = "arn:aws:iam::aws:policy/SecurityAudit"
+}
+
 data "archive_file" "monitor_service_quotas" {
   type        = "zip"
   source_dir  = "${path.module}/lambda/monitor_service_quotas"
@@ -80,7 +85,7 @@ resource "aws_lambda_function" "monitor_service_quotas" {
   filename         = data.archive_file.monitor_service_quotas.output_path
   source_code_hash = data.archive_file.monitor_service_quotas.output_base64sha256
   tags             = local.tags
-  timeout          = 60
+  timeout          = 300
 
   environment {
     variables = {
