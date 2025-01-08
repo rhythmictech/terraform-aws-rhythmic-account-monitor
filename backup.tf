@@ -36,7 +36,7 @@ resource "aws_cloudwatch_event_rule" "backup_event" {
   "source": ["aws.backup"],
   "detail-type": ["Backup Job State Change"],
   "detail": {
-    "state": ["COMPLETED", "FAILED", "ABORTED"]
+    "state": ["EXPIRED", "FAILED", "ABORTED"]
   }
 }
 EOT
