@@ -26,7 +26,7 @@ data "aws_iam_policy_document" "monitor_service_quotas_execution" {
 
   statement {
     effect    = "Allow"
-    resources = ["arn:aws:logs:${local.region}:${local.account_id}:log-group:/aws/lambda/monitor_service_quotas_execution:*"]
+    resources = ["arn:${local.partition}:logs:${local.region}:${local.account_id}:log-group:/aws/lambda/monitor_service_quotas_execution:*"]
 
     actions = [
       "logs:CreateLogGroup",
@@ -67,7 +67,7 @@ resource "aws_iam_role_policy_attachment" "monitor_service_quotas_execution" {
 
 resource "aws_iam_role_policy_attachment" "monitor_service_quotas_security_analyst" {
   role       = aws_iam_role.monitor_service_quotas_execution.name
-  policy_arn = "arn:aws:iam::aws:policy/SecurityAudit"
+  policy_arn = "arn:${local.partition}:iam::aws:policy/SecurityAudit"
 }
 
 data "archive_file" "monitor_service_quotas" {

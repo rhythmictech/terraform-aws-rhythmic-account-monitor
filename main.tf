@@ -4,6 +4,8 @@ data "aws_caller_identity" "current" {
 data "aws_region" "current" {
 }
 
+data "aws_partition" "current" {
+}
 
 module "tags" {
   source  = "rhythmictech/tags/terraform"
@@ -20,6 +22,7 @@ module "tags" {
 
 locals {
   account_id = data.aws_caller_identity.current.account_id
+  partition  = data.aws_partition.current.partition
   region     = data.aws_region.current.name
   tags       = module.tags.tags_no_name
 }
