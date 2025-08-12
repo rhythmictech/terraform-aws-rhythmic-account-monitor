@@ -30,7 +30,7 @@ Rhythmic is an AWS Managed Services Provider. We rely heavily on automation to d
 
 We open source the vast majority of the resources we use to deliver our managed services because transparency is one of our principles.
 
-<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 | Name | Version |
@@ -43,8 +43,8 @@ We open source the vast majority of the resources we use to deliver our managed 
 
 | Name | Version |
 |------|---------|
-| <a name="provider_archive"></a> [archive](#provider\_archive) | 2.5.0 |
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.62.0 |
+| <a name="provider_archive"></a> [archive](#provider\_archive) | 2.7.1 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.8.0 |
 
 ## Modules
 
@@ -112,22 +112,23 @@ We open source the vast majority of the resources we use to deliver our managed 
 | <a name="input_datadog_api_key_secret_arn"></a> [datadog\_api\_key\_secret\_arn](#input\_datadog\_api\_key\_secret\_arn) | ARN of the AWS Secret containing the Datadog API key | `string` | n/a | yes |
 | <a name="input_enable_iam_access_analyzer"></a> [enable\_iam\_access\_analyzer](#input\_enable\_iam\_access\_analyzer) | A boolean flag to enable/disable IAM Access Analyzer | `bool` | `false` | no |
 | <a name="input_enable_iam_access_analyzer_organization"></a> [enable\_iam\_access\_analyzer\_organization](#input\_enable\_iam\_access\_analyzer\_organization) | A boolean flag to enable/disable IAM Access Analyzer at the organization level (requires enable\_iam\_access\_analyzer to be true and IAM Access Analyzer to be enabled at the organization level) | `bool` | `false` | no |
-| <a name="input_iam_access_analyzer_unused_archive_rules"></a> [iam\_access\_analyzer\_unused\_archive\_rules](#input\_iam\_access\_analyzer\_unused\_archive\_rules) | List of IAM resources to auto-archive unused access findings for | <pre>list(object({<br>    accounts      = optional(list(string))<br>    finding_type  = string<br>    is_partial    = bool<br>    resources     = optional(list(string))<br>    resource_type = optional(string)<br>  }))</pre> | `[]` | no |
+| <a name="input_iam_access_analyzer_unused_archive_rules"></a> [iam\_access\_analyzer\_unused\_archive\_rules](#input\_iam\_access\_analyzer\_unused\_archive\_rules) | List of IAM resources to auto-archive unused access findings for | <pre>list(object({<br/>    accounts      = optional(list(string))<br/>    finding_type  = string<br/>    is_partial    = bool<br/>    resources     = optional(list(string))<br/>    resource_type = optional(string)<br/>  }))</pre> | `[]` | no |
 | <a name="input_iam_analyzer_unused_access_age"></a> [iam\_analyzer\_unused\_access\_age](#input\_iam\_analyzer\_unused\_access\_age) | The age in days after which IAM access is considered unused. | `number` | `90` | no |
 | <a name="input_name_prefix"></a> [name\_prefix](#input\_name\_prefix) | Prefix for all resource names | `string` | `"rhythmic-"` | no |
 | <a name="input_notify_ec2_missing_ami"></a> [notify\_ec2\_missing\_ami](#input\_notify\_ec2\_missing\_ami) | Whether to notify when EC2 instances are using missing AMIs | `bool` | `false` | no |
 | <a name="input_notify_ec2_missing_ami_if_snapshot_exists"></a> [notify\_ec2\_missing\_ami\_if\_snapshot\_exists](#input\_notify\_ec2\_missing\_ami\_if\_snapshot\_exists) | Whether to notify when EC2 instances are using missing AMIs but snapshots exist | `bool` | `true` | no |
-| <a name="input_service_quota_region_list"></a> [service\_quota\_region\_list](#input\_service\_quota\_region\_list) | List of regions to monitor for service quotas. Note that you cannot monitor across partitions (e.g. us-east-1 and us-gov-east-1) | `list(string)` | <pre>[<br>  "us-east-1"<br>]</pre> | no |
+| <a name="input_service_quota_region_list"></a> [service\_quota\_region\_list](#input\_service\_quota\_region\_list) | List of regions to monitor for service quotas. Note that you cannot monitor across partitions (e.g. us-east-1 and us-gov-east-1) | `list(string)` | <pre>[<br/>  "us-east-1"<br/>]</pre> | no |
 | <a name="input_service_quota_threshold"></a> [service\_quota\_threshold](#input\_service\_quota\_threshold) | The threshold percentage for service quota alerts | `number` | `80` | no |
+| <a name="input_sns_subscription_endpoint"></a> [sns\_subscription\_endpoint](#input\_sns\_subscription\_endpoint) | HTTPS endpoint for SNS subscription. If not specified, defaults to Datadog webhook | `string` | `null` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | User-Defined tags | `map(string)` | `{}` | no |
 
 ## Outputs
 
 No outputs.
-<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- END_TF_DOCS -->
 
 ## Getting Started
-This workflow has a few prerequisites which are installed through the `./bin/install-x.sh` scripts and are linked below. The install script will also work on your local machine. 
+This workflow has a few prerequisites which are installed through the `./bin/install-x.sh` scripts and are linked below. The install script will also work on your local machine.
 
 - [pre-commit](https://pre-commit.com)
 - [terraform](https://terraform.io)
@@ -137,5 +138,5 @@ This workflow has a few prerequisites which are installed through the `./bin/ins
 - [tflint](https://github.com/terraform-linters/tflint)
 
 We use `tfenv` to manage `terraform` versions, so the version is defined in the `versions.tf` and `tfenv` installs the latest compliant version.
-`pre-commit` is like a package manager for scripts that integrate with git hooks. We use them to run the rest of the tools before apply. 
-`terraform-docs` creates the beautiful docs (above),  `tfsec` scans for security no-nos, `tflint` scans for best practices. 
+`pre-commit` is like a package manager for scripts that integrate with git hooks. We use them to run the rest of the tools before apply.
+`terraform-docs` creates the beautiful docs (above),  `tfsec` scans for security no-nos, `tflint` scans for best practices.
