@@ -69,3 +69,9 @@ variable "tags" {
   description = "User-Defined tags"
   type        = map(string)
 }
+
+variable "sns_subscription_endpoint" {
+  description = "HTTPS endpoint for SNS subscription. If not specified, defaults to Datadog webhook"
+  type        = string
+  default     = null
+}
