@@ -61,5 +61,5 @@ resource "aws_sns_topic_policy" "account_alerts" {
 resource "aws_sns_topic_subscription" "account_alerts" {
   topic_arn = aws_sns_topic.account_alerts.arn
   protocol  = "https"
-  endpoint  = coalesce(var.sns_subscription_endpoint, try("https://app.datadoghq.com/intake/webhook/sns?api_key=${data.aws_secretsmanager_secret_version.datadog_api_key.secret_string}", null))
+  endpoint  = var.sns_subscription_endpoint
 }
