@@ -1,8 +1,3 @@
-variable "datadog_api_key_secret_arn" {
-  description = "ARN of the AWS Secret containing the Datadog API key"
-  type        = string
-}
-
 variable "enable_iam_access_analyzer" {
   default     = false
   description = "A boolean flag to enable/disable IAM Access Analyzer"
