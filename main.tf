@@ -55,12 +55,12 @@ data "aws_iam_policy_document" "account_alerts" {
 }
 
 data "aws_secretsmanager_secret" "datadog_api_key" {
-  count = var.datadog_api_key_secret_arn ? 1 : 0 
+  count = var.datadog_api_key_secret_arn != null ? 1 : 0 
   name  = var.datadog_api_key_secret_arn
 }
 
 data "aws_secretsmanager_secret_version" "datadog_api_key" {
-  count     = var.datadog_api_key_secret_arn ? 1 : 0 
+  count     = var.datadog_api_key_secret_arn != null ? 1 : 0 
   secret_id = data.aws_secretsmanager_secret.datadog_api_key[0].id
 }
 
