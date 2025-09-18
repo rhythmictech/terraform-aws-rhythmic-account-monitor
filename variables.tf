@@ -1,3 +1,8 @@
+variable "datadog_api_key_lookup" {
+  default     = true
+  description = "Set to false when not passing in datadog_api_key_secret_arn"
+  type        = bool
+}
 variable "datadog_api_key_secret_arn" {
   default     = null
   description = "ARN of the AWS Secret containing the Datadog API key"
@@ -76,3 +81,4 @@ variable "sns_subscription_endpoint" {
   description = "HTTPS endpoint for SNS subscription. If not specified, defaults to Datadog webhook"
   type        = string
 }
+
