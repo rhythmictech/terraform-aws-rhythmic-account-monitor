@@ -54,12 +54,35 @@ data "aws_iam_policy_document" "account_alerts" {
   }
 }
 
+data "aws_secretsmanager_secret" "datadog_api_key" {
+  count = var.datadog_api_key_secret_arn != null ? 1 : 0 
+  name  = var.datadog_api_key_secret_arn
+}
+
+data "aws_secretsmanager_secret_version" "datadog_api_key" {
+  count     = var.datadog_api_key_secret_arn != null ? 1 : 0 
+  secret_id = data.aws_secretsmanager_secret.datadog_api_key[0].id
+}
+
+locals {
+  sns_subscription_endpoint = coalesce(var.sns_subscription_endpoint,
+    try("https://app.datadoghq.com/intake/webhook/sns?api_key=${data.aws_secretsmanager_secret_version.datadog_api_key[0].secret_string}", null))
+}
+
 resource "aws_sns_topic_policy" "account_alerts" {
   arn    = aws_sns_topic.account_alerts.arn
   policy = data.aws_iam_policy_document.account_alerts.json
 }
+
 resource "aws_sns_topic_subscription" "account_alerts" {
   topic_arn = aws_sns_topic.account_alerts.arn
   protocol  = "https"
-  endpoint  = var.sns_subscription_endpoint
+  endpoint  = local.sns_subscription_endpoint
+
+  lifecycle {
+    precondition {
+      condition     = local.sns_subscription_endpoint != null
+      error_message = "You must provide an SNS subscription endpoint if not using Datadog"
+    }
+  }
 }
