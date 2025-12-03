@@ -79,7 +79,7 @@ data "archive_file" "monitor_service_quotas" {
 #tfsec:ignore:avd-aws-0066
 resource "aws_lambda_function" "monitor_service_quotas" {
   function_name    = "${var.name_prefix}monitor_service_quotas_execution"
-  handler          = "monitor_service_quotas.handler"
+  handler          = "lambda.handler"
   role             = aws_iam_role.monitor_service_quotas_execution.arn
   runtime          = "python3.13"
   filename         = data.archive_file.monitor_service_quotas.output_path
