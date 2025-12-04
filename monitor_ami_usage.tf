@@ -90,7 +90,7 @@ resource "aws_lambda_function" "monitor_ami_usage" {
   function_name    = "${var.name_prefix}monitor_ami_usage_execution"
   handler          = "monitor_ami_usage.lambda_handler"
   role             = aws_iam_role.monitor_ami_usage_execution.arn
-  runtime          = "python3.9"
+  runtime          = "python3.13"
   filename         = data.archive_file.monitor_ami_usage.output_path
   source_code_hash = data.archive_file.monitor_ami_usage.output_base64sha256
   tags             = local.tags

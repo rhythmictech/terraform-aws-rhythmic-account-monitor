@@ -30,9 +30,15 @@ def lambda_handler(event, context):
 
                 flag_ami = False
                 if notify_ec2_missing_ami_if_snapshot_exists:
-                    snapshot_response = ec2.describe_snapshots(Filters=[{'Name': 'volume-id', 'Values': [instance['BlockDeviceMappings'][0]['Ebs']['SnapshotId']]}])
-                    if snapshot_response['Snapshots']:
-                        flag_ami = True
+                    # Check if BlockDeviceMappings exists and has EBS volumes with SnapshotId
+                    if (instance.get('BlockDeviceMappings') and
+                        len(instance['BlockDeviceMappings']) > 0 and
+                        'Ebs' in instance['BlockDeviceMappings'][0] and
+                        'SnapshotId' in instance['BlockDeviceMappings'][0]['Ebs']):
+                        snapshot_id = instance['BlockDeviceMappings'][0]['Ebs']['SnapshotId']
+                        snapshot_response = ec2.describe_snapshots(Filters=[{'Name': 'volume-id', 'Values': [snapshot_id]}])
+                        if snapshot_response['Snapshots']:
+                            flag_ami = True
 
                 if notify_ec2_missing_ami:
                     flag_ami = True
@@ -94,12 +100,27 @@ def lambda_handler(event, context):
             node_group_response = eks.describe_nodegroup(clusterName=cluster_name, nodegroupName=node_group_name)
             node_group = node_group_response['nodegroup']
 
-            ami_id = node_group['launchTemplate']['id']
-            ami_response = ec2.describe_images(ImageIds=[ami_id])
-            if not ami_response['Images']:
-                if ami_id not in unavailable_amis:
-                    unavailable_amis[ami_id] = []
-                unavailable_amis[ami_id].append(f"eks_node_group:{cluster_name}/{node_group_name}")
+            # Check if the node group uses a launch template
+            if 'launchTemplate' in node_group:
+                launch_template_id = node_group['launchTemplate']['id']
+                launch_template_version = node_group['launchTemplate'].get('version', '$Latest')
+
+                # Get the launch template details to extract the AMI ID
+                lt_response = ec2.describe_launch_template_versions(
+                    LaunchTemplateId=launch_template_id,
+                    Versions=[launch_template_version]
+                )
+
+                if lt_response['LaunchTemplateVersions']:
+                    launch_template_data = lt_response['LaunchTemplateVersions'][0]['LaunchTemplateData']
+                    ami_id = launch_template_data.get('ImageId')
+
+                    if ami_id:
+                        ami_response = ec2.describe_images(ImageIds=[ami_id])
+                        if not ami_response['Images']:
+                            if ami_id not in unavailable_amis:
+                                unavailable_amis[ami_id] = []
+                            unavailable_amis[ami_id].append(f"eks_node_group:{cluster_name}/{node_group_name}")
 
     ami_regex = re.compile(r"ami-[a-f0-9]{8,17}")
 
