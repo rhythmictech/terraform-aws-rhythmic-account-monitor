@@ -26,7 +26,7 @@ data "aws_iam_policy_document" "monitor_service_quotas_execution" {
 
   statement {
     effect    = "Allow"
-    resources = ["arn:${local.partition}:logs:${local.region}:${local.account_id}:log-group:/aws/lambda/monitor_service_quotas_execution:*"]
+    resources = ["arn:${local.partition}:logs:${local.region}:${local.account_id}:log-group:/aws/lambda/${var.name_prefix}monitor_service_quotas_execution:*"]
 
     actions = [
       "logs:CreateLogGroup",

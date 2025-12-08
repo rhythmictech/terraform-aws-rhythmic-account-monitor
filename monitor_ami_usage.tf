@@ -40,7 +40,7 @@ data "aws_iam_policy_document" "monitor_ami_usage_execution" {
 
   statement {
     effect    = "Allow"
-    resources = ["arn:${local.partition}:logs:${local.region}:${local.account_id}:log-group:/aws/lambda/monitor_ami_usage_execution:*"]
+    resources = ["arn:${local.partition}:logs:${local.region}:${local.account_id}:log-group:/aws/lambda/${var.name_prefix}monitor_ami_usage_execution:*"]
 
     actions = [
       "logs:CreateLogGroup",
