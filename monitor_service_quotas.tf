@@ -26,7 +26,7 @@ data "aws_iam_policy_document" "monitor_service_quotas_execution" {
 
   statement {
     effect    = "Allow"
-    resources = ["arn:${local.partition}:logs:${local.region}:${local.account_id}:log-group:/aws/lambda/monitor_service_quotas_execution:*"]
+    resources = ["arn:${local.partition}:logs:${local.region}:${local.account_id}:log-group:/aws/lambda/${var.name_prefix}monitor_service_quotas_execution:*"]
 
     actions = [
       "logs:CreateLogGroup",
@@ -85,7 +85,7 @@ resource "aws_lambda_function" "monitor_service_quotas" {
   filename         = data.archive_file.monitor_service_quotas.output_path
   source_code_hash = data.archive_file.monitor_service_quotas.output_base64sha256
   tags             = local.tags
-  timeout          = 300
+  timeout          = 600
 
   environment {
     variables = {

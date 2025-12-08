@@ -1,7 +1,9 @@
 import os
 import boto3
 import json
+import time
 from datetime import datetime, timedelta
+from botocore.config import Config
 import checker
 import cloudformation_checks
 import ebs_checks
@@ -247,6 +249,18 @@ route53_registry = checker.CheckerRegistry()
 route53_registry.register(r'^Hosted zones$', route53_checks.HostedZonesChecker)
 route53_registry.register(r'^Health checks$', route53_checks.HealthChecksChecker)
 
+# Configure boto3 client with adaptive retries for throttling
+BOTO_CONFIG = Config(
+    retries={
+        'max_attempts': 5,
+        'mode': 'adaptive'  # Automatically handles throttling with exponential backoff
+    }
+)
+
+# Rate limiting delay between API calls (in seconds)
+# ~6-7 requests/second, safely under AWS rate limits
+API_RATE_LIMIT_DELAY = 0.15
+
 def handler(event, context):
     regions = os.environ['SERVICE_QUOTA_REGION_LIST'].split(',')
 
@@ -267,8 +281,8 @@ def handler(event, context):
     return
 
 def check_quotas_in_region(region):
-    quota_client = boto3.client('service-quotas', region_name=region)
-    ec2_client = boto3.client('ec2', region_name=region)
+    quota_client = boto3.client('service-quotas', region_name=region, config=BOTO_CONFIG)
+    ec2_client = boto3.client('ec2', region_name=region, config=BOTO_CONFIG)
 
     threshold = float(os.environ['SERVICE_QUOTA_THRESHOLD']) / 100
 
@@ -314,6 +328,7 @@ def list_all_services(client):
         for service in page['Services']:
             if service['ServiceCode'] not in skip_services:
                 services.append(service)
+        time.sleep(API_RATE_LIMIT_DELAY)
     return services
 
 def list_all_service_quotas(client, service_code):
@@ -321,6 +336,7 @@ def list_all_service_quotas(client, service_code):
     paginator = client.get_paginator('list_service_quotas')
     for page in paginator.paginate(ServiceCode=service_code):
         quotas.extend(page['Quotas'])
+        time.sleep(API_RATE_LIMIT_DELAY)
     return quotas
 
 def get_quota_usage(quota, service_code, region):
@@ -362,8 +378,8 @@ def get_service_specific_usage(service_code, quota, region):
 
     if service_code == 'cloudformation':
         logger.debug(f"Getting service specific usage for {quota['QuotaName']} - {service_code}")
-        return get_service_usage(ebs_registry, quota['QuotaName'], region)
-    if service_code == 'cloudformation':
+        return get_service_usage(cloudformation_registry, quota['QuotaName'], region)
+    elif service_code == 'ebs':
         logger.debug(f"Getting service specific usage for {quota['QuotaName']} - {service_code}")
         return get_service_usage(ebs_registry, quota['QuotaName'], region)
     elif service_code == 'ec2':
@@ -375,9 +391,9 @@ def get_service_specific_usage(service_code, quota, region):
     elif service_code == 'eks':
         logger.debug(f"Getting service specific usage for {quota['QuotaName']} - {service_code}")
         return get_service_usage(eks_registry, quota['QuotaName'], region)
-    elif service_code == 'efs':
+    elif service_code == 'es':
         logger.debug(f"Getting service specific usage for {quota['QuotaName']} - {service_code}")
-        return get_service_usage(efs_registry, quota['QuotaName'], region)
+        return get_service_usage(es_registry, quota['QuotaName'], region)
     elif service_code == 'rds':
         logger.debug(f"Getting service specific usage for {quota['QuotaName']} - {service_code}")
         return get_service_usage(rds_registry, quota['QuotaName'], region)
