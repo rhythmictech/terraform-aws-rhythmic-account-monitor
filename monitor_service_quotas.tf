@@ -25,6 +25,15 @@ data "aws_iam_policy_document" "monitor_service_quotas_execution" {
   }
 
   statement {
+    effect = "Allow"
+    actions = [
+      "cloudwatch:GetMetricStatistics",
+      "cloudwatch:ListMetrics"
+    ]
+    resources = ["*"] #tfsec:ignore:avd-aws-0057
+  }
+
+  statement {
     effect    = "Allow"
     resources = ["arn:${local.partition}:logs:${local.region}:${local.account_id}:log-group:/aws/lambda/${var.name_prefix}monitor_service_quotas_execution:*"]
 
