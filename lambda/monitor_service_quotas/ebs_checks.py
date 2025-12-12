@@ -39,12 +39,12 @@ class VolumeTypeStorageChecker(EBSUsageChecker):
 
         while True:
             if next_token:
-                response = ec2.describe_volumes(
+                response = ebs.describe_volumes(
                     Filters=[{'Name': 'volume-type', 'Values': [volume_type]}],
                     NextToken=next_token
                 )
             else:
-                response = ec2.describe_volumes(
+                response = ebs.describe_volumes(
                     Filters=[{'Name': 'volume-type', 'Values': [volume_type]}]
                 )
 
@@ -59,20 +59,20 @@ class VolumeTypeStorageChecker(EBSUsageChecker):
 
 class ProvisionedIOPSChecker(EBSUsageChecker):
     def get_usage(self, region, quota_name):
-        ec2 = EBSClientSingleton.get_client(region)
+        ebs = EBSClientSingleton.get_client(region)
         total_iops = 0
         next_token = None
 
         volume_type = quota_name.split('IOPS for Provisioned IOPS SSD (')[1].split(')')[0]
         while True:
             if next_token:
-                response = ec2.describe_volumes(
-                    Filters=[{'Name': 'volume-type', 'Values': ['io2']}],
+                response = ebs.describe_volumes(
+                    Filters=[{'Name': 'volume-type', 'Values': [volume_type]}],
                     NextToken=next_token
                 )
             else:
-                response = ec2.describe_volumes(
-                    Filters=[{'Name': 'volume-type', 'Values': ['io2']}]
+                response = ebs.describe_volumes(
+                    Filters=[{'Name': 'volume-type', 'Values': [volume_type]}]
                 )
 
             for volume in response['Volumes']:
@@ -86,19 +86,19 @@ class ProvisionedIOPSChecker(EBSUsageChecker):
 
 class ArchivedSnapshotsPerVolumeChecker(EBSUsageChecker):
     def get_usage(self, region, quota_name):
-        ec2 = EBSClientSingleton.get_client(region)
+        ebs = EBSClientSingleton.get_client(region)
         snapshot_counts = {}
         next_token = None
 
         while True:
             if next_token:
-                response = ec2.describe_snapshots(
+                response = ebs.describe_snapshots(
                     OwnerIds=['self'],
                     Filters=[{'Name': 'storage-tier', 'Values': ['archive']}],
                     NextToken=next_token
                 )
             else:
-                response = ec2.describe_snapshots(
+                response = ebs.describe_snapshots(
                     OwnerIds=['self'],
                     Filters=[{'Name': 'storage-tier', 'Values': ['archive']}]
                 )
@@ -116,18 +116,18 @@ class ArchivedSnapshotsPerVolumeChecker(EBSUsageChecker):
 
 class SnapshotsPerRegionChecker(EBSUsageChecker):
     def get_usage(self, region, quota_name):
-        ec2 = EBSClientSingleton.get_client(region)
+        ebs = EBSClientSingleton.get_client(region)
         total_snapshots = 0
         next_token = None
 
         while True:
             if next_token:
-                response = ec2.describe_snapshots(
+                response = ebs.describe_snapshots(
                     OwnerIds=['self'],
                     NextToken=next_token
                 )
             else:
-                response = ec2.describe_snapshots(
+                response = ebs.describe_snapshots(
                     OwnerIds=['self']
                 )
 
