@@ -94,7 +94,7 @@ resource "aws_lambda_function" "monitor_service_quotas" {
   filename         = data.archive_file.monitor_service_quotas.output_path
   source_code_hash = data.archive_file.monitor_service_quotas.output_base64sha256
   tags             = local.tags
-  timeout          = 600
+  timeout          = 1200
 
   environment {
     variables = {
