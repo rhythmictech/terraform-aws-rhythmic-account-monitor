@@ -32,7 +32,7 @@ class InstancesPerDomainChecker(ESUsageChecker):
             for domain in response['DomainNames']:
                 domain_name = domain['DomainName']
                 domain_config = es.describe_elasticsearch_domain_config(DomainName=domain_name)
-                instance_count = domain_config['DomainConfig']['ElasticsearchClusterConfig']['InstanceCount']
+                instance_count = domain_config['DomainConfig']['ElasticsearchClusterConfig'].get('InstanceCount', 0)
                 max_instances = max(max_instances, instance_count)
 
             next_token = response.get('NextToken')
