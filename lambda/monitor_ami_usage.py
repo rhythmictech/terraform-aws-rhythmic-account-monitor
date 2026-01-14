@@ -134,10 +134,10 @@ def lambda_handler(event, context):
             if ami_regex.match(param['ParameterValue']):
                 ami_id = param['ParameterValue']
                 ami_response = ec2.describe_images(ImageIds=[ami_id])
-            if not ami_response['Images']:
-                if ami_id not in unavailable_amis:
-                    unavailable_amis[ami_id] = []
-                unavailable_amis[ami_id].append(f"cloudformation_stack:{stack['StackName']}")
+                if not ami_response['Images']:
+                    if ami_id not in unavailable_amis:
+                        unavailable_amis[ami_id] = []
+                    unavailable_amis[ami_id].append(f"cloudformation_stack:{stack['StackName']}")
 
     if unavailable_amis:
 
