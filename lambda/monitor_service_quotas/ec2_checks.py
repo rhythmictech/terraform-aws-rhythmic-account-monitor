@@ -212,7 +212,14 @@ class EC2VPCElasticIPsChecker(EC2UsageChecker):
 
             for address in response['Addresses']:
                 if 'Domain' in address and address['Domain'] == 'vpc':
-                    eip_count += 1
+                    if 'InstanceId' in address:
+                        eip_count += 1
+                    elif 'NetworkInterfaceId' in address:
+                        eip_nic = ec2.describe_network_interfaces(NetworkInterfaceIds=[address['NetworkInterfaceId']])['NetworkInterfaces'][0]
+                        if eip_nic.get('RequesterId') != 'amazon-elb':
+                            eip_count += 1
+                    else:
+                        eip_count +=1
 
             next_token = response.get('NextToken')
             if not next_token:
