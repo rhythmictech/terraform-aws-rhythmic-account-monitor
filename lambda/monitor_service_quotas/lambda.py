@@ -340,13 +340,20 @@ def list_all_service_quotas(client, service_code):
     return quotas
 
 def get_quota_usage(quota, service_code, region):
+    value = None
+
     if 'UsageMetric' in quota:
         value = get_cloudwatch_metric_value(boto3.client('cloudwatch', region_name=region), quota['UsageMetric'])
-        return value
-    else:
-        return get_service_specific_usage(service_code, quota, region)
+
+    # Manually gather usage if there is no UsageMetric or it isn't available
+    if value == None:
+        value = get_service_specific_usage(service_code, quota, region)
+
+    return value
 
 def get_cloudwatch_metric_value(cloudwatch_client, usage_metric):
+    value = None
+
     try:
         dimensions = []
         if 'MetricDimensions' in usage_metric and isinstance(usage_metric['MetricDimensions'], list):
@@ -354,22 +361,29 @@ def get_cloudwatch_metric_value(cloudwatch_client, usage_metric):
                 if isinstance(dim, dict) and 'Name' in dim and 'Value' in dim:
                     dimensions.append({'Name': dim['Name'], 'Value': dim['Value']})
 
-        response = cloudwatch_client.get_metric_statistics(
-            Namespace=usage_metric['MetricNamespace'],
-            MetricName=usage_metric['MetricName'],
-            Dimensions=dimensions,
-            StartTime=datetime.utcnow() - timedelta(minutes=10),
-            EndTime=datetime.utcnow(),
-            Period=300,
-            Statistics=[usage_metric.get('MetricStatisticRecommendation', 'Maximum')]
-        )
+            cw_metric = cloudwatch_client.list_metrics(
+                Namespace=usage_metric['MetricNamespace'],
+                MetricName=usage_metric['MetricName'],
+                Dimensions=dimensions)
 
-        # this will typically be no data
-        if response['Datapoints']:
-            logger.debug(f"Getting cloudwatch metric value for {usage_metric['MetricNamespace']} - {usage_metric['MetricName']}")
-            return response['Datapoints'][0]['Maximum']
-        else:
-            return None
+            if cw_metric and len(cw_metric['Metrics']):
+                response = cloudwatch_client.get_metric_statistics(
+                    Namespace=usage_metric['MetricNamespace'],
+                    MetricName=usage_metric['MetricName'],
+                    Dimensions=dimensions,
+                    StartTime=datetime.utcnow() - timedelta(minutes=10),
+                    EndTime=datetime.utcnow(),
+                    Period=300,
+                    Statistics=[usage_metric.get('MetricStatisticRecommendation', 'Maximum')]
+                )
+
+                # this will typically be no data
+                if response['Datapoints']:
+                    logger.debug(f"Getting cloudwatch metric value for {usage_metric['MetricNamespace']} - {usage_metric['MetricName']}")
+                    value = response['Datapoints'][0]['Maximum']
+                else:
+                    value = 0
+        return value
     except Exception as e:
         print(f"Error getting metric value: {str(e)}")
         return None
