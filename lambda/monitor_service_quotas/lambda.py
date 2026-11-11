@@ -283,6 +283,9 @@ def handler(event, context):
 def check_quotas_in_region(region):
     quota_client = boto3.client('service-quotas', region_name=region, config=BOTO_CONFIG)
     ec2_client = boto3.client('ec2', region_name=region, config=BOTO_CONFIG)
+    cloudwatch_client = boto3.client('cloudwatch', region_name=region, config=BOTO_CONFIG)
+    # existing metrics per namespace, loaded once instead of a list_metrics call per quota
+    metric_index = {}
 
     threshold = float(os.environ['SERVICE_QUOTA_THRESHOLD']) / 100
 
@@ -301,8 +304,13 @@ def check_quotas_in_region(region):
                 # Skip hard limits here, we may want to manually check key hard limits separately
                 # But there are too many for meaningful querying
                 if quota['Adjustable'] == True and not any(exclusion in quota['QuotaName'].lower() for exclusion in quota_name_exclusions):
-                    usage = get_quota_usage(quota, service_code, region)
-                    limit = quota['Value']
+                    # The API occasionally returns quotas without a Value; skip them rather than fail the region
+                    limit = quota.get('Value')
+                    if limit is None:
+                        logger.warning(f"No Value for quota {quota.get('QuotaCode')} ({quota['QuotaName']}) in {service_code}, skipping")
+                        continue
+
+                    usage = get_quota_usage(quota, service_code, region, cloudwatch_client, metric_index)
 
                     if usage and limit > 0 and usage / limit >= threshold:
                         logger.info(f"Service {service['ServiceName']} has {usage} of {limit} ({usage / limit * 100}%) which is approaching the limit")
@@ -339,11 +347,11 @@ def list_all_service_quotas(client, service_code):
         time.sleep(API_RATE_LIMIT_DELAY)
     return quotas
 
-def get_quota_usage(quota, service_code, region):
+def get_quota_usage(quota, service_code, region, cloudwatch_client, metric_index):
     value = None
 
     if 'UsageMetric' in quota:
-        value = get_cloudwatch_metric_value(boto3.client('cloudwatch', region_name=region), quota['UsageMetric'])
+        value = get_cloudwatch_metric_value(cloudwatch_client, quota['UsageMetric'], metric_index)
 
     # Manually gather usage if there is no UsageMetric or it isn't available
     if value == None:
@@ -351,7 +359,16 @@ def get_quota_usage(quota, service_code, region):
 
     return value
 
-def get_cloudwatch_metric_value(cloudwatch_client, usage_metric):
+def list_namespace_metrics(cloudwatch_client, namespace):
+    metrics = {}
+    paginator = cloudwatch_client.get_paginator('list_metrics')
+    for page in paginator.paginate(Namespace=namespace):
+        for metric in page['Metrics']:
+            dims = {(d['Name'], d['Value']) for d in metric['Dimensions']}
+            metrics.setdefault(metric['MetricName'], []).append(dims)
+    return metrics
+
+def get_cloudwatch_metric_value(cloudwatch_client, usage_metric, metric_index):
     value = None
 
     try:
@@ -361,26 +378,28 @@ def get_cloudwatch_metric_value(cloudwatch_client, usage_metric):
                 if isinstance(dim, dict) and 'Name' in dim and 'Value' in dim:
                     dimensions.append({'Name': dim['Name'], 'Value': dim['Value']})
 
-            cw_metric = cloudwatch_client.list_metrics(
-                Namespace=usage_metric['MetricNamespace'],
-                MetricName=usage_metric['MetricName'],
-                Dimensions=dimensions)
+            namespace = usage_metric['MetricNamespace']
+            if namespace not in metric_index:
+                metric_index[namespace] = list_namespace_metrics(cloudwatch_client, namespace)
 
-            if cw_metric and len(cw_metric['Metrics']):
+            # same match as list_metrics with a Dimensions filter: the metric has at least these dimensions
+            wanted = {(d['Name'], d['Value']) for d in dimensions}
+            if any(wanted <= dims for dims in metric_index[namespace].get(usage_metric['MetricName'], [])):
+                statistic = usage_metric.get('MetricStatisticRecommendation', 'Maximum')
                 response = cloudwatch_client.get_metric_statistics(
-                    Namespace=usage_metric['MetricNamespace'],
+                    Namespace=namespace,
                     MetricName=usage_metric['MetricName'],
                     Dimensions=dimensions,
                     StartTime=datetime.utcnow() - timedelta(minutes=10),
                     EndTime=datetime.utcnow(),
                     Period=300,
-                    Statistics=[usage_metric.get('MetricStatisticRecommendation', 'Maximum')]
+                    Statistics=[statistic]
                 )
 
                 # this will typically be no data
                 if response['Datapoints']:
-                    logger.debug(f"Getting cloudwatch metric value for {usage_metric['MetricNamespace']} - {usage_metric['MetricName']}")
-                    value = response['Datapoints'][0]['Maximum']
+                    logger.debug(f"Getting cloudwatch metric value for {namespace} - {usage_metric['MetricName']}")
+                    value = response['Datapoints'][0][statistic]
                 else:
                     value = 0
         return value
