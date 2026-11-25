@@ -43,8 +43,8 @@ We open source the vast majority of the resources we use to deliver our managed 
 
 | Name | Version |
 |------|---------|
-| <a name="provider_archive"></a> [archive](#provider\_archive) | 2.7.1 |
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.8.0 |
+| <a name="provider_archive"></a> [archive](#provider\_archive) | >= 2.5.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.40 |
 
 ## Modules
 
@@ -109,7 +109,8 @@ We open source the vast majority of the resources we use to deliver our managed 
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_datadog_api_key_secret_arn"></a> [datadog\_api\_key\_secret\_arn](#input\_datadog\_api\_key\_secret\_arn) | ARN of the AWS Secret containing the Datadog API key | `string` | n/a | yes |
+| <a name="input_datadog_api_key_lookup"></a> [datadog\_api\_key\_lookup](#input\_datadog\_api\_key\_lookup) | Set to false when not passing in datadog\_api\_key\_secret\_arn | `bool` | `true` | no |
+| <a name="input_datadog_api_key_secret_arn"></a> [datadog\_api\_key\_secret\_arn](#input\_datadog\_api\_key\_secret\_arn) | ARN of the AWS Secret containing the Datadog API key | `string` | `null` | no |
 | <a name="input_enable_iam_access_analyzer"></a> [enable\_iam\_access\_analyzer](#input\_enable\_iam\_access\_analyzer) | A boolean flag to enable/disable IAM Access Analyzer | `bool` | `false` | no |
 | <a name="input_enable_iam_access_analyzer_organization"></a> [enable\_iam\_access\_analyzer\_organization](#input\_enable\_iam\_access\_analyzer\_organization) | A boolean flag to enable/disable IAM Access Analyzer at the organization level (requires enable\_iam\_access\_analyzer to be true and IAM Access Analyzer to be enabled at the organization level) | `bool` | `false` | no |
 | <a name="input_iam_access_analyzer_unused_archive_rules"></a> [iam\_access\_analyzer\_unused\_archive\_rules](#input\_iam\_access\_analyzer\_unused\_archive\_rules) | List of IAM resources to auto-archive unused access findings for | <pre>list(object({<br/>    accounts      = optional(list(string))<br/>    finding_type  = string<br/>    is_partial    = bool<br/>    resources     = optional(list(string))<br/>    resource_type = optional(string)<br/>  }))</pre> | `[]` | no |
